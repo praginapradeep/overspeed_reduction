@@ -1,0 +1,173 @@
+define BLYNK_PRINT Serial
+
+include< ESP8266WiFi.h >
+include < BlynkSimpleEsp8266.h >
+
+//connecting mobile hotspot/wifi with prototype
+
+char auth[] = ”2-dlGVb4CJX4gcA6HqvLtMFihDmJdHo”;
+char ssid[] = ”D”;                  //your device name
+char pass[] = ”12345678”;           //your hotspot password
+
+include < SoftwareSerial.h >
+
+SoftwareSerial MySerial(D2, D3);
+int id, i;
+char cid[] = 53, 57, 48, 48, 68, 53, 49, 48, 50, 51, 66, 70;
+char readid[26], a, p;
+
+
+void setup()
+
+  {
+      pinMode(D2, INPUT);
+      pinMode(D0, OUTPUT);
+      pinMode(D1, OUTPUT);
+      pinMode(D3, OUTPUT);
+      pinMode(D4, OUTPUT);
+      pinMode(D5, OUTPUT);
+      pinMode(D6, OUTPUT);
+      digitalWrite(D0, LOW);
+      digitalWrite(D1, LOW);
+      digitalWrite(D3, LOW);
+      digitalWrite(D4, LOW);
+      Serial.begin(9600);
+      MySerial.begin(9600);
+      Blynk.begin(auth, ssid, pass);
+  }
+  
+  
+void loop()
+
+  {
+      Blynk.run();
+      
+      if (Serial.available() > 0)
+        
+        {
+            char D=Serial.read();
+            Serial.print(D);
+            Serial.print(” ”);
+            Blynk.notify(”Drowsiness Detected”);
+        }
+        
+      if (MySerial.available() > 0)
+
+        {
+            id = MySerial.read();
+            Serial.print(id);
+            Serial.println(i);
+            readid[i] = id;
+            i++;
+        }
+        
+       p = 1;
+
+       if (i == 12)
+    
+         {
+             for (a = 0; a < 12; a++)
+                
+               {
+                
+                  if (readid[a] == cid[a])
+                    
+                    {
+            
+                        p = p * 1;
+                    }
+                
+                  else
+
+                    {
+
+                        p = p * 0;  
+                       
+                    }
+
+                }
+            
+                if (p == 1)
+
+                  {
+
+                      Serial.println(’,’);
+                      Serial.println(cid);
+                      digitalWrite(D0, HIGH);
+                      digitalWrite(D1, LOW);
+                      digitalWrite(D3, HIGH);
+                      digitalWrite(D4, LOW);
+                      analogWrite(D5, 50);
+                      analogWrite(D6, 50);
+
+                  }
+
+                else
+
+                  {
+
+                      Serial.println(’,’);
+                      Serial.println(”notvalid”);
+                      digitalWrite(D0, HIGH);
+                      digitalWrite(D1, LOW);
+                      digitalWrite(D3, HIGH);
+                      digitalWrite(D4, LOW);
+                      analogWrite(D5, 100);
+                      analogWrite(D6, 100);
+          
+                  }
+                  
+                i = 0;
+              
+         }
+          
+  }
+
+
+
+BLYNK WRITE(V0)
+
+  {
+    
+      digitalWrite(D0, HIGH);
+      digitalWrite(D1, LOW);
+      digitalWrite(D3, HIGH);
+      digitalWrite(D4, LOW);
+      analogWrite(D5, 100);
+      analogWrite(D6, 100);
+      Serial.println(”normal mode”);
+
+  }
+
+
+BLYNK WRITE(V1)
+
+  {
+
+      digitalWrite(D0, HIGH);
+      digitalWrite(D1, LOW);
+      digitalWrite(D3, HIGH);
+      digitalWrite(D4, LOW);
+      analogWrite(D5, 150);
+      analogWrite(D6, 150);
+      Serial.println(”speed mode”);
+      //Blynk.email(” [YOUR E-MAIL ID] ”,” [PASSWORD] ”,”over speed driving”);
+      Blynk.notify(”Reduce your speed now!”);
+  }
+  
+  
+BLYNK WRITE(V2)
+
+  {
+
+      digitalWrite(D0, LOW);
+      digitalWrite(D1, LOW);
+      digitalWrite(D3, LOW);
+      digitalWrite(D4, LOW);
+      analogWrite(D5, 150);
+      analogWrite(D6, 150);
+      Serial.println(”speed mode”);
+      // Blynk.email(” [YOUR E-MAIL ID] ”,” [PASSWORD] ”,”over speed driving”);
+      // Blynk.notify(”Reduce your speed now!”);
+
+  }
